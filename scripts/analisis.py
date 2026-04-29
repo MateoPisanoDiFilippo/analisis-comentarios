@@ -1,53 +1,67 @@
 import pandas as pd
-from collections import Counter
-import re
 import os
 
-# Carga de datos con ruta relativa para reproducibilidad en Colab
+# Cargo el archivo CSV con los comentarios
 df = pd.read_csv("datos/comentarios.csv")
 
-# Unimos todos los comentarios y los limpiamos
-texto_completo = " ".join(df["comentario"].str.lower())
-palabras = re.findall(r"[a-z]+", texto_completo)
-frecuencia = Counter(palabras)
+# Uno todos los comentarios en un solo texto
+texto_completo = ""
+for comentario in df["comentario"]:
+    texto_completo = texto_completo + " " + comentario.lower()
 
-# Eliminamos palabras vacias que no aportan significado
-stopwords = {"me", "el", "la", "lo", "un", "no", "muy", "al", "de",
-             "en", "es", "le", "mi", "se", "si", "su", "y", "a"}
-frecuencia_filtrada = {p: c for p, c in frecuencia.items()
-                       if p not in stopwords and len(p) > 2}
+# Separo el texto en palabras individuales
+todas_las_palabras = texto_completo.split()
 
-top_palabras = sorted(frecuencia_filtrada.items(),
-                      key=lambda x: x[1], reverse=True)[:10]
+# Palabras que no me interesan contar (palabras vacias)
+stopwords = ["me", "el", "la", "lo", "un", "no", "muy", "al", "de",
+             "en", "es", "le", "mi", "se", "si", "su", "y", "a"]
 
-# Clasificacion por palabras clave simples
-palabras_positivas = ["encanto", "excelente", "fantastico",
-                      "buenisimo", "perfecto", "conforme", "buena"]
-palabras_negativas = ["terrible", "malo", "pesimo", "basura",
-                      "roto", "tardo", "gusto"]
+# Cuento cuantas veces aparece cada palabra
+frecuencia = {}
+for palabra in todas_las_palabras:
+    if palabra not in stopwords and len(palabra) > 2:
+        if palabra in frecuencia:
+            frecuencia[palabra] = frecuencia[palabra] + 1
+        else:
+            frecuencia[palabra] = 1
 
-def clasificar(comentario):
-    # Devuelve Positivo, Negativo o Neutro segun palabras clave
-    c = comentario.lower()
-    if any(p in c for p in palabras_positivas):
-        return "Positivo"
-    elif any(p in c for p in palabras_negativas):
-        return "Negativo"
-    return "Neutro"
+# Ordeno las palabras de mayor a menor frecuencia y tomo las 10 primeras
+top_palabras = sorted(frecuencia.items(), key=lambda x: x[1], reverse=True)[:10]
 
-df["sentimiento"] = df["comentario"].apply(clasificar)
+# Listas de palabras para clasificar comentarios
+positivas = ["encanto", "excelente", "fantastico", "buenisimo", "perfecto", "conforme", "buena"]
+negativas = ["terrible", "malo", "pesimo", "basura", "roto", "tardo", "gusto"]
 
-# Guardamos los resultados en /resultados
+# Clasifico cada comentario revisando si contiene palabras clave
+resultados_sentimiento = []
+
+for comentario in df["comentario"]:
+    comentario_minuscula = comentario.lower()
+    sentimiento = "Neutro"
+
+    for palabra in positivas:
+        if palabra in comentario_minuscula:
+            sentimiento = "Positivo"
+            break
+
+    for palabra in negativas:
+        if palabra in comentario_minuscula:
+            sentimiento = "Negativo"
+            break
+
+    resultados_sentimiento.append(sentimiento)
+
+df["sentimiento"] = resultados_sentimiento
+
+# Guardo los resultados en un archivo de texto
 os.makedirs("resultados", exist_ok=True)
-with open("resultados/informe.txt", "w") as f:
-    f.write("=== ANALISIS DE COMENTARIOS ===\n\n")
-    f.write("TOP 10 PALABRAS MAS FRECUENTES:\n")
-    for palabra, count in top_palabras:
-        f.write("  " + palabra + ": " + str(count) + "\n")
-    f.write("\nCLASIFICACION DE COMENTARIOS:\n")
-    for _, row in df.iterrows():
-        f.write("  [" + row["sentimiento"] + "] " + row["comentario"] + "\n")
+archivo = open("resultados/informe.txt", "w")
+archivo.write("=== ANALISIS DE COMENTARIOS ===\n\n")
+archivo.write("TOP 10 PALABRAS MAS FRECUENTES:\n")
 
-print("Analisis completado. Resultados guardados en /resultados")
-print("Top palabras:", top_palabras)
-print(df[["comentario", "sentimiento"]])
+for palabra, count in top_palabras:
+    archivo.write("  " + palabra + ": " + str(count) + "\n")
+
+archivo.write("\n
+
+#Se ha utilizado la IA para algunas cosas, como la parte de guardar resultados en archivos, dado que un no tengo ese conocimiento
