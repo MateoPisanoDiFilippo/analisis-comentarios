@@ -1,0 +1,25 @@
+=== ANALISIS DE COMENTARIOS ===
+
+TOP 10 PALABRAS MAS FRECUENTES:
+  simo: 2
+  encant: 1
+  producto: 1
+  buena: 1
+  calidad: 1
+  terrible: 1
+  experiencia: 1
+  recomiendo: 1
+  excelente: 1
+  atenci: 1
+
+CLASIFICACION DE COMENTARIOS:
+  [Positivo] Me encantó el producto muy buena calidad
+  [Negativo] Terrible experiencia no lo recomiendo
+  [Positivo] Excelente atención al cliente
+  [Negativo] Muy malo llegó roto
+  [Neutro] Fantástico lo compraría de nuevo
+  [Neutro] Pésimo servicio tardó demasiado
+  [Neutro] Buenísimo superó mis expectativas
+  [Neutro] No me gustó para nada
+  [Positivo] Todo perfecto muy conforme
+  [Negativo] Una basura nunca más
